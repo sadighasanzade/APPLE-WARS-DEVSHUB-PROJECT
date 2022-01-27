@@ -1,5 +1,6 @@
 # imports
 
+import random as rnd
 import pygame
 import os
 
@@ -128,6 +129,33 @@ class Apple(pygame.sprite.Sprite):
         self.is_throwed = False
 
 
+class Meteor(pygame.sprite.Sprite):
+    def __init__(self, SCREEN_WIDTH, player1: Player, player2: Player) -> None:
+        super().__init__()
+        self.player1 = player1
+        self.player2 = player2
+        self.image = pygame.image.load(os.path.abspath('static/meteor.png'))
+        self.rect = self.image.get_rect()
+        self.__METEOR_HEIGHT = 80
+        self.__METEOR_WIDTH = 80
+        self.__METEOR_Y = 0
+        self.rect.left = rnd.randint(0, SCREEN_WIDTH-80)
+        self.boom = False
+
+    def fall(self):
+        self.rect.top += 5
+        self.rect.left += 2
+
+    def update(self) -> None:
+        global Winner
+        if(pygame.sprite.collide_rect(self, self.player1)):
+            self.boom = True
+            Winner = f"{self.player2}"
+        else:
+            self.boom = False
+            Winner = f"{self.player1}"
+
+
 def main():
 
     global Winner
@@ -158,6 +186,10 @@ def main():
 
     active_sprite_list.add(apple1)
     active_sprite_list.add(apple2)
+
+    meteor = Meteor(SCREEN_WIDTH, player, player2)
+
+    active_sprite_list.add(meteor)
 
     # Loop until the user clicks the close button.
     game_over = False
@@ -209,7 +241,10 @@ def main():
 
             if(apple1.isShooted or apple2.isShooted):
                 game_over = True
+            elif(meteor.boom):
+                game_over = True
 
+        meteor.fall()
         active_sprite_list.update()
         active_sprite_list.draw(game_screen)
 
@@ -227,8 +262,7 @@ def main():
                 game_over = False
             if ev.type == pygame.KEYDOWN:
                 if ev.key == pygame.K_r:
-                    main()
-                    game_over = True
+                    return main()
 
         pygame.draw.rect(game_screen, RED, game_over_rect)
         game_screen.blit(game_over_text, text_rect)
