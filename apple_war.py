@@ -148,11 +148,13 @@ class Meteor(pygame.sprite.Sprite):
 
     def update(self) -> None:
         global Winner
-        if(pygame.sprite.collide_rect(self, self.player1)):
+        if(pygame.sprite.collide_rect(self.player1, self)):
             self.boom = True
+            print("boom")
             Winner = f"{self.player2}"
-        else:
-            self.boom = False
+        elif(pygame.sprite.collide_rect(self.player2, self)):
+            self.boom = True
+            print("boom")
             Winner = f"{self.player1}"
 
 
